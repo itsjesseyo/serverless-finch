@@ -168,7 +168,7 @@ class Client {
         errorDoc = this.options.errorDocument || 'error.html';
         redirectAllRequestsTo = this.options.redirectAllRequestsTo || null;
         routingRules = this.options.routingRules || null;
-        tags = this.options.tags || []
+        tags = this.options.tags || [];
 
         const deployDescribe = ['This deployment will:'];
 
@@ -292,20 +292,21 @@ class Client {
 
     return this._validateConfig()
       .then(() => {
+        if (this.options.preHooks == undefined) {
+          return false;
+        }
         return this.cliOptions.confirm === false
           ? true
           : new Confirm('Do you want to call before deploy hooks?').run();
       })
       .then(goOn => {
         if (goOn) {
-          hooks = this.options.preHooks || null;
-          if (hooks === null) {
-            this.serverless.cli.log(`No Before Deploy Hooks to run...`);
-            return Promise.resolve();
-          }
-
           this.serverless.cli.log(`Calling Before Deploy Hooks...`);
           return handleChildProcesses(this.serverless, hooks);
+        }
+        if (this.options.preHooks === undefined) {
+          this.serverless.cli.log(`No Before Deploy Hooks to run...`);
+          return Promise.resolve();
         }
         this.serverless.cli.log('Before Deploy Hooks cancelled');
         return Promise.resolve();
@@ -320,20 +321,21 @@ class Client {
 
     return this._validateConfig()
       .then(() => {
+        if (this.options.postHooks == undefined) {
+          return false;
+        }
         return this.cliOptions.confirm === false
           ? true
           : new Confirm('Do you want to call after deploy hooks?').run();
       })
       .then(goOn => {
         if (goOn) {
-          hooks = this.options.preHooks || null;
-          if (hooks === null) {
-            this.serverless.cli.log(`No After Deploy Hooks to run...`);
-            return Promise.resolve();
-          }
-
           this.serverless.cli.log(`Calling After Deploy Hooks...`);
           return handleChildProcesses(this.serverless, hooks);
+        }
+        if (this.options.postHooks === undefined) {
+          this.serverless.cli.log(`No After Deploy Hooks to run...`);
+          return Promise.resolve();
         }
         this.serverless.cli.log('After Deploy Hooks cancelled');
         return Promise.resolve();
